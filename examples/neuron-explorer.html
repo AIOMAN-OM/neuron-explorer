@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مستكشف الخلية العصبية | Neuron Explorer</title>
+<style>
+:root{--bg:#0b1530;--card:#122047;--card2:#18295a;--line:#2a3d74;--cyan:#22d3ee;--gold:#f5b942;--txt:#e8eefc;--mut:#9fb0d8;--red:#fb7185;--green:#34d399}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#1b2f6b 0,transparent 60%),var(--bg);color:var(--txt);font-family:Tajawal,"Noto Kufi Arabic","Noto Sans Arabic","Segoe UI",sans-serif;line-height:1.7}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 24px 60px}
+header{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+header .badge{width:62px;height:62px;border-radius:18px;background:linear-gradient(135deg,#0e7490,#22d3ee);display:grid;place-items:center;box-shadow:0 0 30px #22d3ee55}
+h1{margin:0;font-size:34px}
+h1 small{display:block;font-size:15px;color:var(--mut);font-weight:400}
+.lead{color:var(--mut);font-size:18px;margin:0 0 24px}
+section{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px 24px;margin-bottom:22px}
+h2{margin:0 0 4px;font-size:24px;display:flex;align-items:center;gap:10px}
+h2 .n{background:var(--gold);color:#1a1a1a;border-radius:10px;width:32px;height:32px;display:grid;place-items:center;font-size:17px}
+.sub{color:var(--mut);margin:0 0 14px;font-size:15px}
+.grid{display:grid;grid-template-columns:1fr 330px;gap:18px;align-items:stretch}
+.stage{background:#0a1430;border:1px solid var(--line);border-radius:18px;padding:8px;direction:ltr}
+svg{width:100%;height:auto;display:block}
+.part{cursor:pointer;transition:filter .2s}
+.part:hover,.part:focus{filter:drop-shadow(0 0 6px #fff8);outline:none}
+.part.sel{filter:drop-shadow(0 0 10px var(--gold))}
+.info{background:var(--card2);border-radius:18px;padding:18px;border:1px solid var(--line)}
+.info .ar{font-size:24px;font-weight:700;color:var(--gold)}
+.info .en{font-size:14px;color:var(--mut);direction:ltr;text-align:right}
+.info p{font-size:17px;margin:10px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{background:#0e1b40;border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:5px 12px;font:inherit;font-size:14px;cursor:pointer}
+.chip.on{border-color:var(--gold);color:var(--gold)}
+.ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin:12px 0}
+.ctrl label{font-size:16px}
+input[type=range]{width:260px;accent-color:var(--cyan)}
+.val{font-weight:700;color:var(--cyan);min-width:40px;display:inline-block}
+button.main{background:linear-gradient(135deg,#0891b2,#22d3ee);color:#04202a;border:0;border-radius:14px;padding:10px 22px;font:inherit;font-weight:700;font-size:17px;cursor:pointer}
+button.ghost{background:transparent;color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:9px 16px;font:inherit;cursor:pointer}
+.two{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
+canvas{direction:ltr;width:100%;background:#0a1430;border:1px solid var(--line);border-radius:16px;display:block}
+.msg{font-size:17px;min-height:30px;margin-top:8px}
+.msg.ok{color:var(--green)}.msg.no{color:var(--red)}
+.types{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.type{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:14px}
+.type b{color:var(--gold);font-size:18px}
+.q{background:var(--card2);border-radius:16px;padding:14px 16px;margin-top:12px;border:1px solid var(--line)}
+.q .opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.q .opts button{background:#0e1b40;border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:6px 14px;font:inherit;cursor:pointer}
+.q .opts button.right{border-color:var(--green);color:var(--green)}
+.q .opts button.wrong{border-color:var(--red);color:var(--red)}
+.score{font-size:20px;font-weight:700;color:var(--gold);margin-top:12px}
+@media(max-width:900px){.grid,.two,.types{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="badge"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="7" cy="12" r="3.2" fill="#fff"/><path d="M4.2 10.4 1.8 8.2M4.4 13.8 2 16.2M10.2 12H21M21 12l1.6-2.2M21 12l1.6 2.2" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+  <h1>مستكشف الخلية العصبية<small>Neuron Explorer · درس تفاعلي للصفوف 7–12</small></h1>
+</header>
+<p class="lead">الخلية العصبية هي الوحدة الأساسية للجهاز العصبي: تستقبل الإشارات الكهربائية والكيميائية، وتعالجها، ثم تنقلها إلى خلايا أخرى.</p>
+
+<!-- 1 Anatomy -->
+<section id="anatomy">
+  <h2><span class="n">1</span>تشريح الخلية العصبية</h2>
+  <p class="sub">اضغط على أي جزء من الخلية لتعرف اسمه ووظيفته.</p>
+  <div class="grid">
+    <div class="stage">
+      <svg id="neuron" viewBox="0 0 1000 320" aria-label="Neuron diagram">
+        <defs>
+          <radialGradient id="gS" cx="40%" cy="35%"><stop offset="0" stop-color="#5b8cff"/><stop offset="1" stop-color="#2949a8"/></radialGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <g class="part" data-k="dendrites" tabindex="0" stroke="#7aa2ff" stroke-width="7" stroke-linecap="round" fill="none">
+          <path d="M130 120 L70 70 L40 40 M70 70 L30 85"/>
+          <path d="M120 150 L50 150 L15 130 M50 150 L18 172"/>
+          <path d="M130 182 L75 235 L45 270 M75 235 L30 238"/>
+          <path d="M165 98 L150 40 L125 15 M150 40 L178 12"/>
+          <path d="M168 203 L160 262 L135 296 M160 262 L188 296"/>
+        </g>
+        <circle class="part" data-k="soma" tabindex="0" cx="175" cy="150" r="58" fill="url(#gS)"/>
+        <circle class="part" data-k="nucleus" tabindex="0" cx="170" cy="148" r="21" fill="#f5b942"/>
+        <path class="part" data-k="hillock" tabindex="0" d="M228 128 L268 142 L268 158 L228 172 Z" fill="#4f74e0"/>
+        <line class="part" data-k="axon" tabindex="0" x1="266" y1="150" x2="870" y2="150" stroke="#8fb0ff" stroke-width="10"/>
+        <g class="part" data-k="myelin" tabindex="0" fill="#e9d8a6" stroke="#c7b27a" stroke-width="2">
+          <rect x="290" y="132" width="90" height="36" rx="16"/><rect x="402" y="132" width="90" height="36" rx="16"/>
+          <rect x="514" y="132" width="90" height="36" rx="16"/><rect x="626" y="132" width="90" height="36" rx="16"/>
+          <rect x="738" y="132" width="90" height="36" rx="16"/>
+        </g>
+        <g class="part" data-k="nodes" tabindex="0" fill="#22d3ee">
+          <circle cx="391" cy="150" r="6"/><circle cx="503" cy="150" r="6"/><circle cx="615" cy="150" r="6"/><circle cx="727" cy="150" r="6"/>
+        </g>
+        <g class="part" data-k="terminals" tabindex="0">
+          <g stroke="#8fb0ff" stroke-width="6" stroke-linecap="round" fill="none">
+            <path d="M870 150 L930 90"/><path d="M870 150 L945 150"/><path d="M870 150 L930 210"/><path d="M900 120 L955 115"/><path d="M900 180 L955 185"/>
+          </g>
+          <g fill="#f5b942"><circle cx="932" cy="88" r="11"/><circle cx="948" cy="150" r="11"/><circle cx="932" cy="212" r="11"/><circle cx="958" cy="114" r="9"/><circle cx="958" cy="186" r="9"/></g>
+        </g>
+        <circle id="pulse" cx="266" cy="150" r="14" fill="#22d3ee" filter="url(#glow)" opacity="0"/>
+        <g font-family="Segoe UI,sans-serif" font-size="15" fill="#9fb0d8" text-anchor="middle">
+          <text x="60" y="310">Dendrites</text><text x="175" y="235" fill="#cfe0ff">Soma</text>
+          <text x="560" y="205">Axon · Myelin</text><text x="930" y="250">Terminals</text>
+        </g>
+      </svg>
+    </div>
+    <div class="info" aria-live="polite">
+      <div class="ar" id="pAr">التغصّنات</div>
+      <div class="en" id="pEn">Dendrites</div>
+      <p id="pTx">تستقبل الإشارات القادمة من الخلايا العصبية الأخرى وتنقلها إلى جسم الخلية.</p>
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 Action potential -->
+<section id="ap">
+  <h2><span class="n">2</span>محاكي السيالة العصبية (جهد الفعل)</h2>
+  <p class="sub">حرّك شدة المنبّه ثم اضغط «نبّه». إذا وصل الجهد إلى العتبة (−55 ملي فولت) تنطلق السيالة على طول المحور.</p>
+  <div class="ctrl">
+    <label>شدة المنبّه: <span class="val" id="sv">70</span></label>
+    <input type="range" id="stim" min="0" max="100" value="70">
+    <button class="main" id="fire">⚡ نبّه</button>
+    <label><input type="checkbox" id="nomy"> إزالة الميالين</label>
+  </div>
+  <div class="two">
+    <div class="stage"><svg id="mini" viewBox="0 0 1000 120">
+      <line x1="40" y1="60" x2="960" y2="60" stroke="#8fb0ff" stroke-width="8"/>
+      <g id="miniMy" fill="#e9d8a6"><rect x="80" y="44" width="150" height="32" rx="14"/><rect x="260" y="44" width="150" height="32" rx="14"/><rect x="440" y="44" width="150" height="32" rx="14"/><rect x="620" y="44" width="150" height="32" rx="14"/><rect x="800" y="44" width="150" height="32" rx="14"/></g>
+      <circle id="mpulse" cx="40" cy="60" r="16" fill="#22d3ee" filter="url(#glow)" opacity="0"/>
+      <text x="40" y="108" fill="#9fb0d8" font-size="16">Axon hillock</text><text x="960" y="108" fill="#9fb0d8" font-size="16" text-anchor="end">Terminals</text>
+    </svg>
+    <div class="msg" id="msg">جاهز — الجهد الساكن −70 ملي فولت</div></div>
+    <canvas id="graph" width="900" height="420"></canvas>
+  </div>
+</section>
+
+<!-- 3 Synapse -->
+<section id="syn">
+  <h2><span class="n">3</span>التشابك العصبي</h2>
+  <p class="sub">عند وصول السيالة إلى النهاية يدخل الكالسيوم، فتطلق الحويصلات النواقل العصبية لتعبر الشق وترتبط بالمستقبلات.</p>
+  <div class="two">
+    <div class="stage"><svg id="synSvg" viewBox="0 0 600 340">
+      <path d="M120 0 H480 V120 Q480 170 430 170 H170 Q120 170 120 120 Z" fill="#2949a8"/>
+      <path d="M100 340 V230 Q100 205 130 205 H470 Q500 205 500 230 V340 Z" fill="#1f3a7a"/>
+      <g id="recs" fill="#34d399"><rect x="170" y="200" width="26" height="10" rx="3"/><rect x="250" y="200" width="26" height="10" rx="3"/><rect x="330" y="200" width="26" height="10" rx="3"/><rect x="410" y="200" width="26" height="10" rx="3"/></g>
+      <g id="ves"></g><g id="nts"></g>
+      <text x="300" y="40" fill="#cfe0ff" font-size="17" text-anchor="middle">Presynaptic terminal</text>
+      <text x="300" y="300" fill="#cfe0ff" font-size="17" text-anchor="middle">Postsynaptic dendrite</text>
+    </svg></div>
+    <div class="info">
+      <div class="ar">ماذا يحدث؟</div>
+      <p>١. تصل السيالة → تنفتح قنوات Ca²⁺<br>٢. تندمج الحويصلات بالغشاء<br>٣. تعبر النواقل (مثل الأسيتيل كولين) الشق<br>٤. ترتبط بالمستقبلات فتُستثار الخلية التالية</p>
+      <div class="ctrl"><button class="main" id="synBtn">▶ إعادة التشغيل</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 Types + quiz -->
+<section id="quiz">
+  <h2><span class="n">4</span>أنواع الخلايا العصبية واختبر نفسك</h2>
+  <div class="types">
+    <div class="type"><b>حسية</b> <small>Sensory</small><br>تنقل المعلومات من أعضاء الحس إلى الدماغ والحبل الشوكي.</div>
+    <div class="type"><b>حركية</b> <small>Motor</small><br>تنقل الأوامر من الجهاز العصبي المركزي إلى العضلات والغدد.</div>
+    <div class="type"><b>موصّلة</b> <small>Interneuron</small><br>تربط بين الخلايا الحسية والحركية داخل الجهاز العصبي المركزي.</div>
+  </div>
+  <div id="qs"></div>
+  <div class="score" id="score"></div>
+</section>
+</div>
+
+<script>
+// ---------- deterministic clock (allows frame-exact capture) ----------
+const now = () => (window.__T !== undefined ? window.__T : performance.now());
+
+// ---------- 1. anatomy ----------
+const P = {
+  dendrites:["التغصّنات","Dendrites","تستقبل الإشارات القادمة من الخلايا العصبية الأخرى وتنقلها إلى جسم الخلية."],
+  soma:["جسم الخلية","Cell body (Soma)","يجمع الإشارات الواردة ويدمجها، ويحتوي على النواة ومعظم عضيات الخلية."],
+  nucleus:["النواة","Nucleus","تحتوي على المادة الوراثية DNA وتتحكم في أنشطة الخلية."],
+  hillock:["مخروط المحور","Axon hillock","هنا يُتخذ «قرار» الإطلاق: إذا بلغ الجهد العتبة (−55 ملي فولت) تبدأ السيالة."],
+  axon:["المحور","Axon","ليف طويل ينقل السيالة العصبية بعيداً عن جسم الخلية."],
+  myelin:["غمد الميالين","Myelin sheath","طبقة عازلة تصنعها خلايا شوان، تزيد سرعة انتقال السيالة كثيراً."],
+  nodes:["عُقد رانفييه","Nodes of Ranvier","فجوات بين أجزاء الميالين تقفز عندها السيالة (التوصيل القفزي)."],
+  terminals:["النهايات المحورية","Axon terminals","تطلق النواقل العصبية في التشابك لتنقل الإشارة إلى الخلية التالية."]
+};
+const chips = document.getElementById('chips');
+function select(k){
+  document.querySelectorAll('#neuron .part').forEach(e=>e.classList.toggle('sel',e.dataset.k===k));
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.k===k));
+  const [a,e,t]=P[k]; pAr.textContent=a; pEn.textContent=e; pTx.textContent=t;
+}
+Object.keys(P).forEach(k=>{const b=document.createElement('button');b.className='chip';b.dataset.k=k;b.textContent=P[k][0];b.onclick=()=>select(k);chips.appendChild(b);});
+document.querySelectorAll('#neuron .part').forEach(e=>{e.addEventListener('click',()=>select(e.dataset.k));e.addEventListener('keydown',ev=>{if(ev.key==='Enter')select(e.dataset.k)});});
+select('dendrites');
+
+// ---------- 2. action potential ----------
+const stim=document.getElementById('stim'), sv=document.getElementById('sv'), nomy=document.getElementById('nomy');
+stim.oninput=()=>sv.textContent=stim.value;
+nomy.onchange=()=>document.getElementById('miniMy').style.opacity=nomy.checked?0.12:1;
+let ap=null; // {t0, strength, fires, myelin}
+const TH=55; // stimulus needed to reach threshold
+function fire(){ap={t0:now(),s:+stim.value,fires:+stim.value>=TH,my:!nomy.checked};}
+document.getElementById('fire').onclick=fire;
+
+function vAt(ms,a){ // membrane potential (mV) at time ms after stimulus
+  if(!a.fires){const peak=-70+a.s*0.25; if(ms<400) return -70+(peak+70)*Math.sin(Math.PI*ms/800); if(ms<1400) return -70+(peak+70)*Math.exp(-(ms-400)/250); return -70;}
+  if(ms<300) return -70+15*(ms/300);
+  if(ms<520){const x=(ms-300)/220; return -55+90*(1-Math.pow(1-x,2));}
+  if(ms<900){const x=(ms-520)/380; return 35-115*x*x*(3-2*x);}
+  if(ms<1700){const x=(ms-900)/800; return -80+10*(x*x*(3-2*x));}
+  return -70;
+}
+const g=document.getElementById('graph'), cx=g.getContext('2d');
+const GX=70,GW=800,GY=30,GH=340,TMAX=2000;
+const yOf=v=>GY+GH*(1-(v+90)/140);
+function drawGraph(ms){
+  cx.clearRect(0,0,g.width,g.height);cx.direction='ltr';cx.textAlign='left';
+  cx.font='16px Segoe UI,sans-serif';cx.fillStyle='#9fb0d8';cx.strokeStyle='#2a3d74';cx.lineWidth=1;
+  [-80,-70,-55,0,40].forEach(v=>{cx.beginPath();cx.moveTo(GX,yOf(v));cx.lineTo(GX+GW,yOf(v));cx.stroke();cx.fillText(v+' mV',4,yOf(v)+5);});
+  cx.setLineDash([8,6]);cx.strokeStyle='#f5b942';cx.beginPath();cx.moveTo(GX,yOf(-55));cx.lineTo(GX+GW,yOf(-55));cx.stroke();cx.setLineDash([]);
+  cx.fillStyle='#f5b942';cx.fillText('Threshold',GX+GW-90,yOf(-55)-8);
+  cx.fillStyle='#9fb0d8';cx.fillText('time →',GX+GW-60,GY+GH+34);
+  if(!ap) {cx.strokeStyle='#22d3ee';cx.lineWidth=4;cx.beginPath();cx.moveTo(GX,yOf(-70));cx.lineTo(GX+GW,yOf(-70));cx.stroke();return;}
+  const end=Math.min(ms,TMAX);
+  cx.strokeStyle='#22d3ee';cx.lineWidth=4;cx.shadowColor='#22d3ee';cx.shadowBlur=12;cx.beginPath();
+  for(let t=0;t<=end;t+=8){const x=GX+GW*t/TMAX,y=yOf(vAt(t,ap));t?cx.lineTo(x,y):cx.moveTo(x,y);}
+  cx.stroke();cx.shadowBlur=0;
+  const v=vAt(end,ap);cx.fillStyle='#fff';cx.beginPath();cx.arc(GX+GW*end/TMAX,yOf(v),7,0,7);cx.fill();
+  cx.font='bold 22px Segoe UI,sans-serif';cx.fillStyle='#e8eefc';cx.fillText(v.toFixed(0)+' mV',GX+10,GY+24);
+}
+const nodesX=[40,245,425,605,785,960];
+function pulseX(ms,a){ // position along mini axon
+  const dur=a.my?900:2600, st=500; if(ms<st) return null; const p=(ms-st)/dur; if(p>1) return null;
+  if(!a.my) return 40+920*p;
+  const seg=p*(nodesX.length-1), i=Math.floor(seg), f=seg-i, e=f<0.75?0:(f-0.75)/0.25;
+  return nodesX[i]+(nodesX[Math.min(i+1,nodesX.length-1)]-nodesX[i])*e;
+}
+const msg=document.getElementById('msg'), mp=document.getElementById('mpulse'), bigP=document.getElementById('pulse');
+function renderAP(){
+  const ms=ap?now()-ap.t0:0; drawGraph(ms);
+  let x=ap&&ap.fires?pulseX(ms,ap):null;
+  mp.setAttribute('opacity',x===null?0:1); if(x!==null) mp.setAttribute('cx',x);
+  if(!ap){msg.className='msg';msg.textContent='جاهز — الجهد الساكن −70 ملي فولت';}
+  else if(!ap.fires){msg.className='msg no';msg.textContent='تحت العتبة — لا تنطلق سيالة (قانون الكل أو لا شيء)';}
+  else{msg.className='msg ok';msg.textContent=ms<520?'إزالة الاستقطاب: دخول أيونات الصوديوم Na⁺':ms<900?'إعادة الاستقطاب: خروج أيونات البوتاسيوم K⁺':ap.my?'السيالة تقفز بين عُقد رانفييه — توصيل قفزي سريع':'بدون ميالين: التوصيل أبطأ بكثير';}
+}
+
+// ---------- 3. synapse ----------
+let syn0=null; const vesG=document.getElementById('ves'), ntG=document.getElementById('nts'), recs=document.querySelectorAll('#recs rect');
+const VES=[[190,95],[260,120],[330,90],[400,118],[230,60],[370,58]];
+const NS='http://www.w3.org/2000/svg';
+VES.forEach(()=>{const c=document.createElementNS(NS,'circle');c.setAttribute('r',16);c.setAttribute('fill','#f5b942');c.setAttribute('fill-opacity','.85');vesG.appendChild(c);});
+const NT=[];for(let i=0;i<24;i++){const c=document.createElementNS(NS,'circle');c.setAttribute('r',5);c.setAttribute('fill','#fde68a');ntG.appendChild(c);NT.push(c);}
+function playSyn(){syn0=now();}
+document.getElementById('synBtn').onclick=playSyn;
+const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
+function renderSyn(){
+  const t=syn0===null?0:(now()-syn0)/1000;
+  vesG.childNodes.forEach((c,i)=>{const [x,y]=VES[i];const m=ease((t-0.2-i*0.12)/0.8);c.setAttribute('cx',x);c.setAttribute('cy',y+(166-y)*m);c.setAttribute('r',16*(1-ease((t-1-i*0.12)/0.4)));});
+  NT.forEach((c,i)=>{const vi=i%VES.length,start=1+vi*0.12,m=ease((t-start)/1.1);const tx=183+80*(i%4),sx=VES[vi][0]+((i*37)%30-15);c.setAttribute('cx',sx+(tx-sx)*m);c.setAttribute('cy',170+(196-170)*m);c.setAttribute('opacity',t<start?0:1);});
+  const lit=ease((t-2)/0.6); recs.forEach(r=>r.setAttribute('fill',lit>0.5?'#a7f3d0':'#34d399'));
+  document.querySelector('#synSvg path:nth-of-type(2)').setAttribute('fill',lit>0.5?'#2c5bb0':'#1f3a7a');
+}
+
+// ---------- 4. quiz ----------
+const Q=[
+ ["ما الجزء الذي يستقبل الإشارات من الخلايا الأخرى؟",["المحور","التغصّنات","النهايات المحورية"],1],
+ ["كم يبلغ الجهد الساكن للخلية العصبية تقريباً؟",["−70 ملي فولت","+40 ملي فولت","0 ملي فولت"],0],
+ ["ما وظيفة غمد الميالين؟",["تخزين النواقل","زيادة سرعة السيالة","صنع البروتين"],1],
+ ["دخول أي أيونات يسبب إزالة الاستقطاب؟",["البوتاسيوم K⁺","الكلور Cl⁻","الصوديوم Na⁺"],2],
+ ["ما الذي يدخل النهاية المحورية فيُطلق النواقل؟",["الكالسيوم Ca²⁺","الماء","الجلوكوز"],0]];
+let sc=0,ans=0;
+Q.forEach(([q,o,r],i)=>{const d=document.createElement('div');d.className='q';d.innerHTML='<b>'+(i+1)+'. '+q+'</b><div class="opts"></div>';
+  o.forEach((t,j)=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{if(d.dataset.done)return;d.dataset.done=1;ans++;
+    if(j===r){b.classList.add('right');sc++;}else{b.classList.add('wrong');d.querySelectorAll('button')[r].classList.add('right');}
+    if(ans===Q.length)score.textContent='نتيجتك: '+sc+' من '+Q.length+(sc===Q.length?' — ممتاز! 🎉':'');};d.querySelector('.opts').appendChild(b);});
+  qs.appendChild(d);});
+
+// ---------- loop ----------
+window.__render=()=>{renderAP();renderSyn();};
+window.demo={select,fire,playSyn,setStim:v=>{stim.value=v;sv.textContent=v;},setMyelin:on=>{nomy.checked=!on;nomy.onchange();}};
+(function loop(){window.__render();requestAnimationFrame(loop);})();
+setTimeout(playSyn,600);
+</script>
+</body>
+</html>
