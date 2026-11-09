@@ -1,0 +1,14 @@
+interface:
+  display_name: Neuron Explorer
+  short_description: Interactive Arabic/English neuron lesson with impulse simulator and quiz
+  default_prompt: Use $neuron-explorer to build an interactive Arabic lesson on neurons
+    for grade 9.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true
